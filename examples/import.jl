@@ -12,11 +12,18 @@ ds = Dataset(joinpath(path, filename))
 # You can access the variables in the dataset using ds["variable_name"]
 # For example, to access the wind speed at 32m height:
 wind_speed_32m = ds["USA3D_32m_S_Spd_8Hz_Calc_Avg"][:]
+# And wind speed at 92m height:
+wind_speed_92m = ds["USA3D_92m_S_Spd_8Hz_Calc_Avg"][:]
 time_stamp = ds["TIMESTAMP"][:]
 # Calculate relative time in seconds from the first timestamp
 rel_time = [(t - time_stamp[1]).value / 1000.0 for t in time_stamp]
 # Convert missing values to NaN and create Vector{Float64}
-wind_speed_clean = replace(wind_speed_32m, missing => NaN)
+wind_speed_32m_clean = replace(wind_speed_32m, missing => NaN)
+wind_speed_92m_clean = replace(wind_speed_92m, missing => NaN)
 # Convert the data to a DataFrame
-df = DataFrame(timestamp = time_stamp, rel_time = rel_time, wind_speed_32m = wind_speed_clean)
-plot(df.rel_time, df.wind_speed_32m)
+df = DataFrame(timestamp = time_stamp, rel_time = rel_time, 
+               wind_speed_32m = wind_speed_32m_clean, wind_speed_92m = wind_speed_92m_clean)
+# Plot both wind speeds using ControlPlots syntax
+plot(df.rel_time, [df.wind_speed_32m, df.wind_speed_92m], xlabel="Time (s)", ylabel="Wind Speed (m/s)",
+     labels=["Wind Speed 32m", "Wind Speed 92m"], xlims=(minimum(df.rel_time), maximum(df.rel_time)), 
+     fig="$(time_stamp[1])")
