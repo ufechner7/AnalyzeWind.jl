@@ -8,4 +8,10 @@ Software to analyze two types of wind data:
 
 See also: https://github.com/JuliaGeo/NCDatasets.jl
 
+# Examples
+```
+include("examples/import.jl")
+```
+
+
 
