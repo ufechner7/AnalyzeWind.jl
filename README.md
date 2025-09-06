@@ -12,6 +12,12 @@ See also: https://github.com/JuliaGeo/NCDatasets.jl
 ```
 include("examples/import.jl")
 ```
+This will convert and plot the first file in the `data/WindData/10min_dataset` folder.
 
+To convert all `.nc` files, call:
+```
+process_all_nc_files(path)
+```
+This will convert the files into a dataframe, which is stored as `.jld2` file in the same folder.
 
 
