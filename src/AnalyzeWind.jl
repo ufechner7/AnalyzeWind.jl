@@ -168,8 +168,9 @@ function plot_windrose(path::String; height=92, nbins=16, speed_bins=[0, 3, 6, 1
     dir_centers = collect(dir_bins .+ dir_bin_size/2)
     
     # Convert direction centers to radians (matplotlib uses radians for polar plots)
-    # Adjust for meteorological convention (0° = North, clockwise)
-    theta = (90.0 .- dir_centers) .* π ./ 180.0  # Convert to mathematical convention
+    # Do not adjust for meteorological convention (0° = North, clockwise)
+    # theta = (90.0 .- dir_centers) .* π ./ 180.0  # Convert to mathematical convention
+    theta = deg2rad.(dir_centers)  
     
     # Create speed bin labels
     speed_labels = String[]
