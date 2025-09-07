@@ -46,4 +46,11 @@ plot(df.rel_time, [df.wind_direction_32m, df.wind_direction_92m], xlabel="Time (
 
 # close(ds)
 
+# calculate the position of the meteorological mast
+# using Proj
+
+# proj_string = "+proj=utm +zone=32 +datum=WGS84"
+# transformer = Proj.Transformation(proj_string, "+proj=longlat +datum=WGS84")
+# lon, lat = transformer(411734.4371, 6028967.271)
+
 
