@@ -256,19 +256,20 @@ function plot_windrose(path::String; height=92, nbins=16, speed_bins=[0, 3, 6, 1
     else
         "Wind Rose - $(title_height) Height\n$(df.timestamp[1]) - $(df.timestamp[end])"
     end
-    ax.set_title(title_text, fontsize=14, fontweight="bold", pad=20)
+    ax.set_title(title_text, fontsize=14, fontweight="bold", pad=10)
     
     # Set radial labels
     ax.set_ylabel("Frequency (%)", labelpad=40)
     ax.grid(true, alpha=0.3)
     
     # Add legend
-    ax.legend(loc="upper left", bbox_to_anchor=(1.1, 1.0))
+    ax.legend(loc="upper left", bbox_to_anchor=(1.0, 1.0))
     
     # Set angular labels (directions)
     ax.set_thetagrids(collect(0:45:315), ["N", "NE", "E", "SE", "S", "SW", "W", "NW"])
     
-    # Adjust layout to prevent legend cutoff
+    # Adjust layout to reduce whitespace and prevent legend cutoff
+    plt.subplots_adjust(top=1.0, bottom=0.0, left=0.08, right=0.85)
     plt.tight_layout()
     
     # Show plot
