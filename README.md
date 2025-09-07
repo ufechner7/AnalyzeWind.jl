@@ -30,16 +30,20 @@ plot_combined(path)
 where path is the file path with the jld2 file.
 
 ## Creating a wind rose
+```julia
 using AnalyzeWind
 
 path = joinpath("data", "WindData", "10min_dataset")
 
-### Wind rose for 92m height (default)
+# Wind rose for 92m height (default)
 plot_windrose(path)
 
-### Wind rose for 32m height
+# Wind rose for 32m height
 plot_windrose(path; height=32)
 
-### Custom wind rose with more direction bins and different speed bins
+# Custom wind rose with more direction bins and different speed bins
 plot_windrose(path; height=92, nbins=24, speed_bins=[0, 2, 4, 6, 8, 12, 16])
+```
+
+**Note**: The wind rose follows meteorological convention where 0° represents North, and angles increase clockwise (North=0°, East=90°, South=180°, West=270°).
 
