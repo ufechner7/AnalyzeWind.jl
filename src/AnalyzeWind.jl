@@ -252,7 +252,7 @@ function plot_windrose(path::String; height=92, nbins=16, speed_bins=[0, 3, 6, 1
     
     # Create title with year information if filtered
     title_text = if year !== nothing
-        "Wind Rose - $(title_height) Height (Year: $year)\n$(Dates.year(df.timestamp[1])) Data"
+        "Wind Rose - $(title_height) Height (Year: $year)"
     else
         "Wind Rose - $(title_height) Height\n$(df.timestamp[1]) - $(df.timestamp[end])"
     end
