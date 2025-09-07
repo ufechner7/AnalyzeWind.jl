@@ -41,8 +41,14 @@ plot_windrose(path)
 # Wind rose for 32m height
 plot_windrose(path; height=32)
 
+# Wind rose for specific year only
+plot_windrose(path; year=2021)
+
 # Custom wind rose with more direction bins and different speed bins
 plot_windrose(path; height=92, nbins=24, speed_bins=[0, 2, 4, 6, 8, 12, 16])
+
+# Combined: specific year with custom parameters
+plot_windrose(path; height=92, year=2021, nbins=24, speed_bins=[0, 2, 4, 6, 8, 12, 16])
 ```
 
 **Note**: The wind rose follows meteorological convention where 0° represents North, and angles increase clockwise (North=0°, East=90°, South=180°, West=270°).

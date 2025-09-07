@@ -123,7 +123,7 @@ function plot_combined(path)
 end
 
 """
-    plot_windrose(path::String; height=92, nbins=16, speed_bins=[0, 3, 6, 10, 15, 20])
+    plot_windrose(path::String; height=92, nbins=16, speed_bins=[0, 3, 6, 10, 15, 20], year=nothing)
 
 Create a wind rose plot showing wind direction frequency and speed distribution.
 
@@ -132,13 +132,25 @@ Create a wind rose plot showing wind direction frequency and speed distribution.
 - `height`: Height level to plot (32 or 92), default is 92m
 - `nbins`: Number of direction bins (default 16, i.e., 22.5° sectors)
 - `speed_bins`: Wind speed bins for color coding (default [0,3,6,10,15,20] m/s)
+- `year`: Filter data for specific year (e.g., 2021), or nothing for all data
 """
-function plot_windrose(path::String; height=92, nbins=16, speed_bins=[0, 3, 6, 10, 15, 20])
+function plot_windrose(path::String; height=92, nbins=16, speed_bins=[0, 3, 6, 10, 15, 20], year=nothing)
     # Access matplotlib/PyPlot API
     plt = ControlPlots.plt
     
     # Load data
     df = JLD2.load(joinpath(path, "10_min_data.jld2"), "data")
+    
+    # Filter by year if specified
+    if year !== nothing
+        year_mask = Dates.year.(df.timestamp) .== year
+        df = df[year_mask, :]
+        println("Filtered data for year $year: $(nrow(df)) records")
+        
+        if nrow(df) == 0
+            error("No data found for year $year")
+        end
+    end
     
     # Select the appropriate columns based on height
     if height == 32
@@ -237,8 +249,14 @@ function plot_windrose(path::String; height=92, nbins=16, speed_bins=[0, 3, 6, 1
     # Customize the plot
     ax.set_theta_zero_location("N")  # North at top
     ax.set_theta_direction(-1)       # Clockwise
-    ax.set_title("Wind Rose - $(title_height) Height\n$(df.timestamp[1])", 
-                 fontsize=14, fontweight="bold", pad=20)
+    
+    # Create title with year information if filtered
+    title_text = if year !== nothing
+        "Wind Rose - $(title_height) Height (Year: $year)\n$(Dates.year(df.timestamp[1])) Data"
+    else
+        "Wind Rose - $(title_height) Height\n$(df.timestamp[1]) - $(df.timestamp[end])"
+    end
+    ax.set_title(title_text, fontsize=14, fontweight="bold", pad=20)
     
     # Set radial labels
     ax.set_ylabel("Frequency (%)", labelpad=40)
@@ -257,7 +275,8 @@ function plot_windrose(path::String; height=92, nbins=16, speed_bins=[0, 3, 6, 1
     plt.show()
     
     # Print statistics
-    println("Wind Rose Statistics for $(title_height) height:")
+    year_text = year !== nothing ? " (Year: $year)" : ""
+    println("Wind Rose Statistics for $(title_height) height$year_text:")
     println("Total valid measurements: $(length(wind_dir_clean))")
     
     # Find most frequent direction
