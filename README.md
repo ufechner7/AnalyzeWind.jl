@@ -23,8 +23,9 @@ This will convert the files into a dataframe, which is stored as `.jld2` file in
 For plotting, you can use any of the functions:
 
 ```julia
-plot_all()
-plot_direction()
-plot_combined()
+plot_all(path)
+plot_direction(path)
+plot_combined(path)
 ```
+where path is the file path with the jld2 file.
 

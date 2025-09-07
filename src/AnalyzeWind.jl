@@ -94,21 +94,21 @@ function process_all_nc_files(folder_path::String)
     return combined_df
 end
 
-function plot_all()
+function plot_all(path)
     df = JLD2.load(joinpath(path, "10_min_data.jld2"), "data")
     plot(df.rel_time, [df.wind_speed_32m, df.wind_speed_92m], xlabel="Time (s)", ylabel="Wind Speed (m/s)",
         labels=["Wind Speed 32m", "Wind Speed 92m"], xlims=(minimum(df.rel_time), maximum(df.rel_time)), 
         fig="$(df.timestamp[1])")
 end
 
-function plot_direction()
+function plot_direction(path)
     df = JLD2.load(joinpath(path, "10_min_data.jld2"), "data")
     plot(df.rel_time, [df.wind_direction_32m, df.wind_direction_92m], xlabel="Time (s)", ylabel="Wind Direction (°)",
         labels=["Wind Direction 32m", "Wind Direction 92m"], xlims=(minimum(df.rel_time), maximum(df.rel_time)), 
         fig="Wind_Direction_$(df.timestamp[1])")
 end
 
-function plot_combined()
+function plot_combined(path)
     df = JLD2.load(joinpath(path, "10_min_data.jld2"), "data")
     # Create separate plots for speed and direction
     p=plot(df.rel_time, [df.wind_speed_32m, df.wind_speed_92m], xlabel="Time (s)", ylabel="Wind Speed (m/s)",
