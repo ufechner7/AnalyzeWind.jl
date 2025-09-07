@@ -5,9 +5,10 @@ using NCDatasets
 using ControlPlots
 using Dates
 using JLD2
+using Statistics
 
 export process_all_nc_files
-export plot_all, plot_direction, plot_combined
+export plot_all, plot_direction, plot_combined, plot_windrose
 
 """
     process_all_nc_files(folder_path::String)
@@ -119,6 +120,161 @@ function plot_combined(path)
         labels=["Wind Direction 32m", "Wind Direction 92m"], xlims=(minimum(df.rel_time), maximum(df.rel_time)), 
         fig="Wind_Direction_$(df.timestamp[1])")
     display(p)
+end
+
+"""
+    plot_windrose(path::String; height=92, nbins=16, speed_bins=[0, 3, 6, 10, 15, 20])
+
+Create a wind rose plot showing wind direction frequency and speed distribution.
+
+# Arguments
+- `path`: Path to the folder containing "10_min_data.jld2"
+- `height`: Height level to plot (32 or 92), default is 92m
+- `nbins`: Number of direction bins (default 16, i.e., 22.5° sectors)
+- `speed_bins`: Wind speed bins for color coding (default [0,3,6,10,15,20] m/s)
+"""
+function plot_windrose(path::String; height=92, nbins=16, speed_bins=[0, 3, 6, 10, 15, 20])
+    # Access matplotlib/PyPlot API
+    plt = ControlPlots.plt
+    
+    # Load data
+    df = JLD2.load(joinpath(path, "10_min_data.jld2"), "data")
+    
+    # Select the appropriate columns based on height
+    if height == 32
+        wind_dir = df.wind_direction_32m
+        wind_speed = df.wind_speed_32m
+        title_height = "32m"
+    elseif height == 92
+        wind_dir = df.wind_direction_92m
+        wind_speed = df.wind_speed_92m
+        title_height = "92m"
+    else
+        error("Height must be either 32 or 92")
+    end
+    
+    # Remove NaN values
+    valid_indices = .!(isnan.(wind_dir) .| isnan.(wind_speed))
+    wind_dir_clean = wind_dir[valid_indices]
+    wind_speed_clean = wind_speed[valid_indices]
+    
+    if isempty(wind_dir_clean)
+        error("No valid wind data found")
+    end
+    
+    # Create direction bins (degrees)
+    dir_bin_size = 360.0 / nbins
+    dir_bins = 0:dir_bin_size:(360-dir_bin_size)
+    dir_centers = collect(dir_bins .+ dir_bin_size/2)
+    
+    # Convert direction centers to radians (matplotlib uses radians for polar plots)
+    # Adjust for meteorological convention (0° = North, clockwise)
+    theta = (90.0 .- dir_centers) .* π ./ 180.0  # Convert to mathematical convention
+    
+    # Create speed bin labels
+    speed_labels = String[]
+    colors = ["#3498db", "#2ecc71", "#f1c40f", "#e67e22", "#e74c3c", "#9b59b6"]  # Blue to red gradient
+    
+    for i in 1:(length(speed_bins)-1)
+        push!(speed_labels, "$(speed_bins[i])-$(speed_bins[i+1]) m/s")
+    end
+    push!(speed_labels, ">$(speed_bins[end]) m/s")
+    
+    # Initialize frequency matrix: [direction_bin, speed_bin]
+    freq_matrix = zeros(nbins, length(speed_labels))
+    
+    # Bin the data
+    for (dir_val, speed_val) in zip(wind_dir_clean, wind_speed_clean)
+        # Find direction bin (handle 360° wrap-around)
+        dir_bin_idx = Int(floor(mod(dir_val, 360) / dir_bin_size)) + 1
+        if dir_bin_idx > nbins
+            dir_bin_idx = 1
+        end
+        
+        # Find speed bin
+        speed_bin_idx = length(speed_bins)  # default to highest bin
+        for i in 1:(length(speed_bins)-1)
+            if speed_val < speed_bins[i+1]
+                speed_bin_idx = i
+                break
+            end
+        end
+        
+        freq_matrix[dir_bin_idx, speed_bin_idx] += 1
+    end
+    
+    # Convert to percentages
+    total_count = sum(freq_matrix)
+    freq_matrix_pct = freq_matrix ./ total_count * 100
+    
+    # Create polar plot
+    fig = plt.figure(figsize=(10, 10))
+    ax = fig.add_subplot(111, projection="polar")
+    
+    # Plot stacked bars for each speed bin
+    bottom = zeros(nbins)
+    bar_width = dir_bin_size * π / 180  # Convert to radians
+    
+    for speed_idx in 1:length(speed_labels)
+        # Get color for this speed bin
+        color = speed_idx <= length(colors) ? colors[speed_idx] : colors[end]
+        
+        # Plot bars
+        bars = ax.bar(theta, freq_matrix_pct[:, speed_idx], 
+                     width=bar_width, 
+                     bottom=bottom,
+                     label=speed_labels[speed_idx],
+                     color=color,
+                     alpha=0.8,
+                     edgecolor="white",
+                     linewidth=0.5)
+        
+        # Update bottom for stacking
+        bottom .+= freq_matrix_pct[:, speed_idx]
+    end
+    
+    # Customize the plot
+    ax.set_theta_zero_location("N")  # North at top
+    ax.set_theta_direction(-1)       # Clockwise
+    ax.set_title("Wind Rose - $(title_height) Height\n$(df.timestamp[1])", 
+                 fontsize=14, fontweight="bold", pad=20)
+    
+    # Set radial labels
+    ax.set_ylabel("Frequency (%)", labelpad=40)
+    ax.grid(true, alpha=0.3)
+    
+    # Add legend
+    ax.legend(loc="upper left", bbox_to_anchor=(1.1, 1.0))
+    
+    # Set angular labels (directions)
+    ax.set_thetagrids(collect(0:45:315), ["N", "NE", "E", "SE", "S", "SW", "W", "NW"])
+    
+    # Adjust layout to prevent legend cutoff
+    plt.tight_layout()
+    
+    # Show plot
+    plt.show()
+    
+    # Print statistics
+    println("Wind Rose Statistics for $(title_height) height:")
+    println("Total valid measurements: $(length(wind_dir_clean))")
+    
+    # Find most frequent direction
+    max_freq_idx = argmax(sum(freq_matrix, dims=2))[1]
+    most_freq_dir = dir_centers[max_freq_idx]
+    println("Most frequent direction: $(round(most_freq_dir, digits=1))°")
+    println("Average wind speed: $(round(mean(wind_speed_clean), digits=2)) m/s")
+    
+    # Print frequency by direction sector
+    println("\nFrequency by direction sector:")
+    for (i, dir_center) in enumerate(dir_centers)
+        total_freq = sum(freq_matrix[i, :])
+        if total_freq > 0
+            println("$(round(dir_center, digits=1))°: $(round(total_freq/total_count*100, digits=1))%")
+        end
+    end
+    
+    return fig
 end
 
 end
