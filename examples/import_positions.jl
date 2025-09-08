@@ -182,10 +182,13 @@ function create_yaml_file(df, output_filename, template_path)
         # Extract turbine ID from name (remove prefix if present)
         turbine_id = i  # Use row index as ID, or could parse from name
         
+        # Get turbine type from template (use first turbine as reference)
+        turbine_type = template["turbines"][1]["type"]
+        
         # Create turbine entry following template structure
         turbine = Dict(
             "id" => turbine_id,
-            "type" => "SWT-3.6-120",  # Default turbine type from template
+            "type" => turbine_type,  # Turbine type from template
             "x" => round(Int, row.rel_x),  # Convert to integer meters
             "y" => round(Int, row.rel_y),  # Convert to integer meters
             "z" => 0,                      # Ground level
@@ -208,14 +211,25 @@ function create_yaml_file(df, output_filename, template_path)
 end
 
 # Create awg.yaml file based on df_AWG data
-template_path = joinpath(@__DIR__, "..", "docs", "template.yaml")
-output_path = joinpath(@__DIR__, "..", "out", "awg.yaml")
+awg_template_path = joinpath(@__DIR__, "..", "docs", "template_awg.yaml")
+awg_output_path = joinpath(@__DIR__, "..", "out", "awg.yaml")
 
-if isfile(template_path)
-    create_yaml_file(df_AWG, output_path, template_path)
-    println("AWG YAML file created successfully at: $output_path")
+if isfile(awg_template_path)
+    create_yaml_file(df_AWG, awg_output_path, awg_template_path)
+    println("AWG YAML file created successfully at: $awg_output_path")
 else
-    println("Warning: Template file not found at $template_path")
+    println("Warning: AWG template file not found at $awg_template_path")
+end
+
+# Create nso.yaml file based on df_NSO data
+nso_template_path = joinpath(@__DIR__, "..", "docs", "template_nso.yaml")
+nso_output_path = joinpath(@__DIR__, "..", "out", "nso.yaml")
+
+if isfile(nso_template_path)
+    create_yaml_file(df_NSO, nso_output_path, nso_template_path)
+    println("NSO YAML file created successfully at: $nso_output_path")
+else
+    println("Warning: NSO template file not found at $nso_template_path")
 end
 
 # # Display the combined dataframe
