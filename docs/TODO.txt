@@ -10,3 +10,5 @@
 
 - add one or more maps
 
+--> write a script to convert the positions to meters
+
