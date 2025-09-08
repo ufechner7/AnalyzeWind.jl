@@ -1,6 +1,6 @@
 # TODO
 
-- fix header of windrose plot; it should look like 01-01-2021 to 31-12-2022 if not filtered by year
+- fix header of windrose plot; it should look like 01-01-2021 to 31-12-2022 if not filtered by year - DONE -
 - if filtered by year, check that the full year is covered !!!
 
 - create a file locations.txt
