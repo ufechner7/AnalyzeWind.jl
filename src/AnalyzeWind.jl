@@ -285,6 +285,13 @@ function plot_windrose(path::String; height=92, nbins=16, speed_bins=[0, 3, 6, 1
     println("Wind Rose Statistics for $(title_height) height$year_text:")
     println("Total valid measurements: $(length(wind_dir_clean))")
     
+    # Find first and last valid sample timestamps
+    valid_timestamps = df.timestamp[valid_indices]
+    first_valid = valid_timestamps[1]
+    last_valid = valid_timestamps[end]
+    println("First valid sample: $first_valid")
+    println("Last valid sample: $last_valid")
+    
     # Find most frequent direction
     max_freq_idx = argmax(sum(freq_matrix, dims=2))[1]
     most_freq_dir = dir_centers[max_freq_idx]
