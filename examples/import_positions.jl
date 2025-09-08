@@ -6,6 +6,7 @@
 using Proj
 using CSV
 using DataFrames
+using ControlPlots
 
 # Read CSV files from the data folder
 data_path = joinpath(@__DIR__, "..", "data")
@@ -57,8 +58,43 @@ println("\nNSO Wind Farm:")
 println("  Latitude range:  $(round(minimum(df_NSO.latitude), digits=6)) to $(round(maximum(df_NSO.latitude), digits=6))")
 println("  Longitude range: $(round(minimum(df_NSO.longitude), digits=6)) to $(round(maximum(df_NSO.longitude), digits=6))")
 
-# println("\n=== Turbine Placement Data ===")
-# println("AWG Turbine Placement:")
-# println(df_AWG)
-# println("\nNSO Turbine Placement:")
-# println(df_NSO) 
+# Create plot of turbine positions using relative coordinates
+plt = ControlPlots.plt
+
+# Create figure with subplots for both wind farms
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 6))
+
+# Plot AWG wind farm
+ax1.scatter(df_AWG.rel_x, df_AWG.rel_y, marker="+", s=100, c="red", linewidths=2, label="AWG Turbines")
+ax1.set_xlabel("Relative X (m)")
+ax1.set_ylabel("Relative Y (m)")
+ax1.set_title("AWG Wind Farm - Turbine Positions")
+ax1.grid(true, alpha=0.3)
+ax1.axis("equal")
+# Add turbine names as annotations
+for i in 1:nrow(df_AWG)
+    ax1.annotate(df_AWG.name[i], (df_AWG.rel_x[i], df_AWG.rel_y[i]), 
+                xytext=(5, 5), textcoords="offset points", fontsize=8)
+end
+
+# Plot NSO wind farm
+ax2.scatter(df_NSO.rel_x, df_NSO.rel_y, marker="+", s=100, c="blue", linewidths=2, label="NSO Turbines")
+ax2.set_xlabel("Relative X (m)")
+ax2.set_ylabel("Relative Y (m)")
+ax2.set_title("NSO Wind Farm - Turbine Positions")
+ax2.grid(true, alpha=0.3)
+ax2.axis("equal")
+# Add turbine names as annotations
+for i in 1:nrow(df_NSO)
+    ax2.annotate(df_NSO.name[i], (df_NSO.rel_x[i], df_NSO.rel_y[i]), 
+                xytext=(5, 5), textcoords="offset points", fontsize=8)
+end
+
+plt.tight_layout()
+plt.show()
+
+# # println("\n=== Turbine Placement Data ===")
+# # println("AWG Turbine Placement:")
+# # println(df_AWG)
+# # println("\nNSO Turbine Placement:")
+# # println(df_NSO)  
