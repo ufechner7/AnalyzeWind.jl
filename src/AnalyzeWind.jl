@@ -251,12 +251,17 @@ function plot_windrose(path::String; height=92, nbins=16, speed_bins=[0, 3, 6, 1
     ax.set_theta_direction(-1)       # Clockwise
     
     # Create title with year information if filtered
-    title_text = if year !== nothing
-        "Wind Rose - $(title_height) Height (Year: $year)"
+    if year !== nothing
+        ax.set_title("Wind Rose - $(title_height) Height (Year: $year)", fontsize=14, fontweight="bold", pad=10)
     else
-        "Wind Rose - $(title_height) Height\n$(df.timestamp[1]) - $(df.timestamp[end])"
+        start_date = Dates.format(Date(df.timestamp[1]), "yyyy-mm-dd")
+        end_date = Dates.format(Date(df.timestamp[end]), "yyyy-mm-dd")
+        # Main title
+        ax.set_title("Wind Rose - $(title_height) Height", fontsize=14, fontweight="bold", pad=20)
+        # Subtitle with smaller font
+        ax.text(0.5, 1.04, "$start_date - $end_date", transform=ax.transAxes, 
+                ha="center", va="bottom", fontsize=10)
     end
-    ax.set_title(title_text, fontsize=14, fontweight="bold", pad=10)
     
     # Set radial labels
     ax.set_ylabel("Frequency (%)", labelpad=40)
