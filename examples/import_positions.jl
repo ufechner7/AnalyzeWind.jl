@@ -7,6 +7,7 @@ using Proj
 using CSV
 using DataFrames
 using ControlPlots
+using YAML
 
 # Read CSV files from the data folder
 data_path = joinpath(@__DIR__, "..", "data")
@@ -159,6 +160,63 @@ end
 
 plt.tight_layout()
 plt.show()
+
+# Function to create YAML file based on dataframe and template
+function create_yaml_file(df, output_filename, template_path)
+    """
+    Create a YAML file for wind farm configuration based on turbine position dataframe.
+    Uses the template structure from template.yaml and fills in actual turbine positions.
+    
+    Parameters:
+    - df: DataFrame with turbine positions (must have rel_x, rel_y columns)
+    - output_filename: Path where to save the YAML file
+    - template_path: Path to the template YAML file for structure reference
+    """
+    # Read the template to understand the structure
+    template = YAML.load_file(template_path)
+    
+    # Create turbines array based on dataframe
+    turbines = []
+    
+    for (i, row) in enumerate(eachrow(df))
+        # Extract turbine ID from name (remove prefix if present)
+        turbine_id = i  # Use row index as ID, or could parse from name
+        
+        # Create turbine entry following template structure
+        turbine = Dict(
+            "id" => turbine_id,
+            "type" => "SWT-3.6-120",  # Default turbine type from template
+            "x" => round(Int, row.rel_x),  # Convert to integer meters
+            "y" => round(Int, row.rel_y),  # Convert to integer meters
+            "z" => 0,                      # Ground level
+            "a" => 0.33,                   # Default from template (axial induction factor)
+            "yaw" => 0,                    # Default yaw angle
+            "ti" => 0.06                   # Default turbulence intensity
+        )
+        
+        push!(turbines, turbine)
+    end
+    
+    # Create the final YAML structure
+    yaml_data = Dict("turbines" => turbines)
+    
+    # Write to YAML file
+    YAML.write_file(output_filename, yaml_data)
+    
+    println("Created YAML file: $output_filename with $(length(turbines)) turbines")
+    return yaml_data
+end
+
+# Create awg.yaml file based on df_AWG data
+template_path = joinpath(@__DIR__, "..", "docs", "template.yaml")
+output_path = joinpath(@__DIR__, "..", "out", "awg.yaml")
+
+if isfile(template_path)
+    create_yaml_file(df_AWG, output_path, template_path)
+    println("AWG YAML file created successfully at: $output_path")
+else
+    println("Warning: Template file not found at $template_path")
+end
 
 # # Display the combined dataframe
 # println("\n=== Combined Turbine Dataset ===")
