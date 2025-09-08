@@ -6,11 +6,26 @@ using Dates
 using JLD2
 using AnalyzeWind
 
+# Function to print all variables in a NetCDF dataset
+function print_variables(ds; filter="")
+    for key in keys(ds)
+        if filter == "" || occursin(filter, key)
+            println(key)
+        end
+    end
+end
+
 # Example: Process a single file
 path = joinpath(@__DIR__, "..", "data", "WindData", "10min_dataset")
 filename="NSO-met-mast-data-10min_2021-08-09-16-40-00_2021-08-10-00-00-00.nc"
 
 ds = Dataset(joinpath(path, filename))
+
+# Print all variables in the dataset
+println("All variables in the dataset:")
+print_variables(ds)
+println()
+
 # The dataset contains wind data measured at 32m and 92m height
 # You can access the variables in the dataset using ds["variable_name"]
 # For example, to access the wind speed at 32m height:

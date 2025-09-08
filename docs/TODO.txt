@@ -5,8 +5,8 @@
 
 - create a file locations.txt
   - add the location of the wind mast
-  - add the locations of the turbines for AWG
-  - add the locations of the turbines for NSO
+  - add the locations of the turbines for Amrumbank West (AWG) 
+  - add the locations of the turbines for Nordsee-Ost (NSO)
 
 - add one or more maps
 
