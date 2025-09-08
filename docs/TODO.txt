@@ -8,8 +8,11 @@
   - add file Turbine_placement_AWG.csv for Amrumbank West (AWG) - DONE -
   - add file Turbine_placement_NSO for Nordsee-Ost (NSO)        - DONE -
 
-- add one or more maps
+- add one or more maps - DONE -
 
 - write a script to convert the positions to meters - DONE -
 
 - add a bar plot valid sample per month
+
+The turbines used for the Amrumbank   (AWG) farm are: SWT-3.6-120 (Siemens).
+The turbines used for the Nordsee Ost (NSO) farm are: Senvion 6.2M126.
