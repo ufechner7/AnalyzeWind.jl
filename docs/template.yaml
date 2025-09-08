@@ -1,3 +1,5 @@
+# yaml-language-server: disable
+# This is a custom wind turbine configuration file, not a CloudFormation template
 turbines:
     - id: 1 
       type: SWT-3.6-120
