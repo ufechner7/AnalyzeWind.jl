@@ -5,10 +5,10 @@
 
 - create a file locations.txt
   - add the location of the wind mast
-  - add the locations of the turbines for Amrumbank West (AWG) 
-  - add the locations of the turbines for Nordsee-Ost (NSO)
+  - add file Turbine_placement_AWG.csv for Amrumbank West (AWG) - DONE -
+  - add file Turbine_placement_NSO for Nordsee-Ost (NSO)        - DONE -
 
 - add one or more maps
 
---> write a script to convert the positions to meters
+- write a script to convert the positions to meters - DONE -
 
