@@ -1,18 +1,20 @@
+# INFO
+The turbines used for the Amrumbank   (AWG) farm are: SWT-3.6-120 (Siemens).
+The turbines used for the Nordsee Ost (NSO) farm are: Senvion 6.2M126.
+
 # TODO
-
-- fix header of windrose plot; it should look like 01-01-2021 to 31-12-2022 if not filtered by year - DONE -
-- if filtered by year, check that the full year is covered  - DONE -
-
-- create a file locations.txt
+- create a file locations.txt - DONE -
   - add the location of the wind mast
-  - add file Turbine_placement_AWG.csv for Amrumbank West (AWG) - DONE -
-  - add file Turbine_placement_NSO for Nordsee-Ost (NSO)        - DONE -
-
-- add one or more maps - DONE -
-
-- write a script to convert the positions to meters - DONE -
 
 - add a bar plot valid sample per month
 
-The turbines used for the Amrumbank   (AWG) farm are: SWT-3.6-120 (Siemens).
-The turbines used for the Nordsee Ost (NSO) farm are: Senvion 6.2M126.
+# DONE
+- fix header of windrose plot; it should look like 01-01-2021 to 31-12-2022 if not filtered by year - DONE -
+- if filtered by year, check that the full year is covered  - DONE -
+
+- create a file locations.txt - DONE
+  - add file Turbine_placement_AWG.csv for Amrumbank West (AWG) - DONE -
+  - add file Turbine_placement_NSO for Nordsee-Ost (NSO)        - DONE -
+
+- create one or more maps - DONE -
+- write a script to convert the positions to meters - DONE -
