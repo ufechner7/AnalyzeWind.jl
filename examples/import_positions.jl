@@ -47,7 +47,18 @@ df_AWG = convert_to_relative_meters(df_AWG)
 df_NSO = latlon_to_utm(df_NSO)
 df_NSO = convert_to_relative_meters(df_NSO)
 
-println("AWG Turbine Placement:")
-println(df_AWG)
-println("\nNSO Turbine Placement:")
-println(df_NSO) 
+# Print min/max coordinates for each wind farm
+println("=== Wind Farm Coordinate Ranges ===")
+println("\nAWG Wind Farm:")
+println("  Latitude range:  $(round(minimum(df_AWG.latitude), digits=6)) to $(round(maximum(df_AWG.latitude), digits=6))")
+println("  Longitude range: $(round(minimum(df_AWG.longitude), digits=6)) to $(round(maximum(df_AWG.longitude), digits=6))")
+
+println("\nNSO Wind Farm:")
+println("  Latitude range:  $(round(minimum(df_NSO.latitude), digits=6)) to $(round(maximum(df_NSO.latitude), digits=6))")
+println("  Longitude range: $(round(minimum(df_NSO.longitude), digits=6)) to $(round(maximum(df_NSO.longitude), digits=6))")
+
+# println("\n=== Turbine Placement Data ===")
+# println("AWG Turbine Placement:")
+# println(df_AWG)
+# println("\nNSO Turbine Placement:")
+# println(df_NSO) 

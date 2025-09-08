@@ -1,0 +1,11 @@
+AWG Wind Farm:
+  Latitude range:  54.506379 to 54.538836
+  Longitude range:  7.64101  to  7.778327
+
+NSO Wind Farm:
+  Latitude range:  54.406139 to 54.471943
+  Longitude range:  7.640304 to  7.739171
+
+# Location of the wind mast:
+
+
