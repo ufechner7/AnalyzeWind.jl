@@ -3,9 +3,13 @@ plt = ControlPlots.plt
 
 path = joinpath("data", "WindData", "10min_dataset")
 
+# Coordinates of the meteorological mast
+longitude = 7.640317864383007
+latitude = 54.40079342584764
+
 # Create a bar plot of data completeness over time
 # Get all monthly data (not just filtered by year)
-all_monthly_stats = plot_windrose(path; start_month=9, start_year=2021)
+all_monthly_stats = plot_windrose(path; start_month=9, start_year=2021, lat=latitude, long=longitude)
 
 # Create year_month strings for x-axis labels
 year_month_labels = [string(row.year) * "-" * lpad(row.month, 2, '0') for row in eachrow(all_monthly_stats)]

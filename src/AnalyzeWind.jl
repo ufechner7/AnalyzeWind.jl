@@ -157,7 +157,7 @@ function plot_combined(path)
 end
 
 """
-    plot_windrose(path::String; height=92, nbins=16, speed_bins=[0, 3, 6, 10, 15, 20], start_year=nothing, start_month=nothing)
+    plot_windrose(path::String; height=92, nbins=16, speed_bins=[0, 3, 6, 10, 15, 20], start_year=nothing, start_month=nothing, lat=nothing, long=nothing)
 
 Create a wind rose plot showing wind direction frequency and speed distribution.
 
@@ -168,8 +168,10 @@ Create a wind rose plot showing wind direction frequency and speed distribution.
 - `speed_bins`: Wind speed bins for color coding (default [0,3,6,10,15,20] m/s)
 - `start_year`: Starting year for 12-month period, or nothing for all data
 - `start_month`: Starting month (1-12), defaults to 1 (January) if start_year is specified
+- `lat`: Latitude in degrees (will be displayed in lower left corner if provided)
+- `long`: Longitude in degrees (will be displayed in lower left corner if provided)
 """
-function plot_windrose(path::String; height=92, nbins=16, speed_bins=[0, 3, 6, 10, 15, 20], start_year=nothing, start_month=nothing)
+function plot_windrose(path::String; height=92, nbins=16, speed_bins=[0, 3, 6, 10, 15, 20], start_year=nothing, start_month=nothing, lat=nothing, long=nothing)
     # Access matplotlib/PyPlot API
     plt = ControlPlots.plt
     
@@ -338,6 +340,21 @@ function plot_windrose(path::String; height=92, nbins=16, speed_bins=[0, 3, 6, 1
     
     # Set angular labels (directions)
     ax.set_thetagrids(collect(0:45:315), ["N", "NE", "E", "SE", "S", "SW", "W", "NW"])
+    
+    # Add coordinates in lower right corner if provided
+    if lat !== nothing && long !== nothing
+        coord_text = "Latitude:  $(lat)°\nLongitude: $(long)°"
+        ax.text(0.90, 0.02, coord_text, transform=ax.transAxes, 
+                fontsize=10, ha="left", va="bottom")
+    elseif lat !== nothing
+        coord_text = "Latitude:  $(lat)°"
+        ax.text(0.90, 0.02, coord_text, transform=ax.transAxes, 
+                fontsize=10, ha="left", va="bottom")
+    elseif long !== nothing
+        coord_text = "Longitude: $(long)°"
+        ax.text(0.90, 0.02, coord_text, transform=ax.transAxes, 
+                fontsize=10, ha="left", va="bottom")
+    end
     
     # Adjust layout to reduce whitespace and prevent legend cutoff
     plt.subplots_adjust(top=1.0, bottom=0.0, left=0.08, right=0.85)
