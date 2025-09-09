@@ -307,7 +307,55 @@ function plot_windrose(path::String; height=92, nbins=16, speed_bins=[0, 3, 6, 1
         end
     end
     
-    return fig
+    # Create monthly statistics DataFrame
+    monthly_stats = DataFrame(
+        month = Int[],
+        year = Int[],
+        valid_samples = Int[],
+        max_samples = Int[]
+    )
+    
+    # Group data by year and month
+    for timestamp in df.timestamp
+        year_val = Dates.year(timestamp)
+        month_val = Dates.month(timestamp)
+        
+        # Check if we already have an entry for this month/year
+        existing_row = findfirst((monthly_stats.year .== year_val) .& (monthly_stats.month .== month_val))
+        
+        if existing_row === nothing
+            # Calculate max possible samples for this month (10-minute intervals)
+            # Days in month * 24 hours * 6 (10-minute intervals per hour)
+            days_in_month = Dates.daysinmonth(Date(year_val, month_val, 1))
+            max_samples = days_in_month * 24 * 6
+            
+            # Count valid samples for this month/year
+            month_mask = (Dates.year.(df.timestamp) .== year_val) .& (Dates.month.(df.timestamp) .== month_val)
+            month_data = df[month_mask, :]
+            
+            # Count valid samples (non-NaN) for the selected height
+            if height == 32
+                valid_count = sum(.!isnan.(month_data.wind_direction_32m) .& .!isnan.(month_data.wind_speed_32m))
+            else
+                valid_count = sum(.!isnan.(month_data.wind_direction_92m) .& .!isnan.(month_data.wind_speed_92m))
+            end
+            
+            push!(monthly_stats, (
+                month = month_val,
+                year = year_val,
+                valid_samples = valid_count,
+                max_samples = max_samples
+            ))
+        end
+    end
+    
+    # Sort by year and month
+    sort!(monthly_stats, [:year, :month])
+    
+    println("\nMonthly sample statistics:")
+    println(monthly_stats)
+    
+    return monthly_stats
 end
 
 end
