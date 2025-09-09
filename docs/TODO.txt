@@ -6,6 +6,9 @@ Position of the measurement mast:
   Longitude: 7.640317864383007°
   Latitude: 54.40079342584764°
 
+# TODO
+- analyze the turbulence intensity for west, north-west and east-west wind 
+
 # DONE
 - fix header of windrose plot; it should look like 01-01-2021 to 31-12-2022 if not filtered by year - DONE -
 - if filtered by year, check that the full year is covered  - DONE -
