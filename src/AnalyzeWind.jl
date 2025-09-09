@@ -312,7 +312,8 @@ function plot_windrose(path::String; height=92, nbins=16, speed_bins=[0, 3, 6, 1
         month = Int[],
         year = Int[],
         valid_samples = Int[],
-        max_samples = Int[]
+        max_samples = Int[],
+        percent_valid = Float64[]
     )
     
     # Group data by year and month
@@ -340,11 +341,15 @@ function plot_windrose(path::String; height=92, nbins=16, speed_bins=[0, 3, 6, 1
                 valid_count = sum(.!isnan.(month_data.wind_direction_92m) .& .!isnan.(month_data.wind_speed_92m))
             end
             
+            # Calculate percentage of valid samples
+            percent_valid = max_samples > 0 ? (valid_count / max_samples * 100.0) : 0.0
+            
             push!(monthly_stats, (
                 month = month_val,
                 year = year_val,
                 valid_samples = valid_count,
-                max_samples = max_samples
+                max_samples = max_samples,
+                percent_valid = round(percent_valid, digits=1)
             ))
         end
     end
