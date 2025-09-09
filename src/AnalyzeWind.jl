@@ -123,7 +123,7 @@ function plot_combined(path)
 end
 
 """
-    plot_windrose(path::String; height=92, nbins=16, speed_bins=[0, 3, 6, 10, 15, 20], year=nothing)
+    plot_windrose(path::String; height=92, nbins=16, speed_bins=[0, 3, 6, 10, 15, 20], start_year=nothing, start_month=nothing)
 
 Create a wind rose plot showing wind direction frequency and speed distribution.
 
@@ -132,23 +132,45 @@ Create a wind rose plot showing wind direction frequency and speed distribution.
 - `height`: Height level to plot (32 or 92), default is 92m
 - `nbins`: Number of direction bins (default 16, i.e., 22.5° sectors)
 - `speed_bins`: Wind speed bins for color coding (default [0,3,6,10,15,20] m/s)
-- `year`: Filter data for specific year (e.g., 2021), or nothing for all data
+- `start_year`: Starting year for 12-month period, or nothing for all data
+- `start_month`: Starting month (1-12), defaults to 1 (January) if start_year is specified
 """
-function plot_windrose(path::String; height=92, nbins=16, speed_bins=[0, 3, 6, 10, 15, 20], year=nothing)
+function plot_windrose(path::String; height=92, nbins=16, speed_bins=[0, 3, 6, 10, 15, 20], start_year=nothing, start_month=nothing)
     # Access matplotlib/PyPlot API
     plt = ControlPlots.plt
     
     # Load data
     df = JLD2.load(joinpath(path, "10_min_data.jld2"), "data")
     
-    # Filter by year if specified
-    if year !== nothing
-        year_mask = Dates.year.(df.timestamp) .== year
-        df = df[year_mask, :]
-        println("Filtered data for year $year: $(nrow(df)) records")
+    # Filter by start_year and start_month if specified
+    if start_year !== nothing
+        # Set default start_month to 1 (January) if not specified
+        if start_month === nothing
+            start_month = 1
+        end
+        
+        # Calculate end year and month (12 months from start)
+        end_year = start_year
+        end_month = start_month + 11
+        
+        # Handle year wraparound if needed
+        if end_month > 12
+            end_year += 1
+            end_month -= 12
+        end
+        
+        # Create date range filter
+        start_date = Date(start_year, start_month, 1)
+        end_date = Date(end_year, end_month, Dates.daysinmonth(end_year, end_month))
+        
+        # Filter data within the 12-month period
+        date_mask = (Date.(df.timestamp) .>= start_date) .& (Date.(df.timestamp) .<= end_date)
+        df = df[date_mask, :]
+        
+        println("Filtered data from $start_date to $end_date: $(nrow(df)) records")
         
         if nrow(df) == 0
-            error("No data found for year $year")
+            error("No data found for the period starting $start_year-$(lpad(start_month, 2, '0'))")
         end
     end
     
@@ -250,9 +272,19 @@ function plot_windrose(path::String; height=92, nbins=16, speed_bins=[0, 3, 6, 1
     ax.set_theta_zero_location("N")  # North at top
     ax.set_theta_direction(-1)       # Clockwise
     
-    # Create title with year information if filtered
-    if year !== nothing
-        ax.set_title("Wind Rose - $(title_height) Height (Year: $year)", fontsize=14, fontweight="bold", pad=10)
+    # Create title with period information if filtered
+    if start_year !== nothing
+        if start_month === nothing
+            start_month = 1
+        end
+        end_year = start_year
+        end_month = start_month + 11
+        if end_month > 12
+            end_year += 1
+            end_month -= 12
+        end
+        period_text = "$(start_year)-$(lpad(start_month, 2, '0')) to $(end_year)-$(lpad(end_month, 2, '0'))"
+        ax.set_title("Wind Rose - $(title_height) Height ($period_text)", fontsize=14, fontweight="bold", pad=10)
     else
         start_date = Dates.format(Date(df.timestamp[1]), "yyyy-mm-dd")
         end_date = Dates.format(Date(df.timestamp[end]), "yyyy-mm-dd")
@@ -281,8 +313,21 @@ function plot_windrose(path::String; height=92, nbins=16, speed_bins=[0, 3, 6, 1
     plt.show()
     
     # Print statistics
-    year_text = year !== nothing ? " (Year: $year)" : ""
-    println("Wind Rose Statistics for $(title_height) height$year_text:")
+    if start_year !== nothing
+        if start_month === nothing
+            start_month = 1
+        end
+        end_year = start_year
+        end_month = start_month + 11
+        if end_month > 12
+            end_year += 1
+            end_month -= 12
+        end
+        period_text = " ($(start_year)-$(lpad(start_month, 2, '0')) to $(end_year)-$(lpad(end_month, 2, '0')))"
+    else
+        period_text = ""
+    end
+    println("Wind Rose Statistics for $(title_height) height$period_text:")
     println("Total valid measurements: $(length(wind_dir_clean))")
     
     # Find first and last valid sample timestamps

@@ -5,13 +5,13 @@ path = joinpath("data", "WindData", "10min_dataset")
 
 # Create a bar plot of data completeness over time
 # Get all monthly data (not just filtered by year)
-all_monthly_stats = plot_windrose(path)
+all_monthly_stats = plot_windrose(path; start_month=9, start_year=2021)
 
 # Create year_month strings for x-axis labels
 year_month_labels = [string(row.year) * "-" * lpad(row.month, 2, '0') for row in eachrow(all_monthly_stats)]
 
 # Create the bar plot
-fig, ax = plt.subplots(figsize=(14, 6))
+fig, ax = plt.subplots(figsize=(14*0.7, 6*0.7))
 
 # Create bar plot
 bars = ax.bar(1:length(year_month_labels), all_monthly_stats.percent_valid, 
