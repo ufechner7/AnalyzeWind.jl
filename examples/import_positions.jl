@@ -9,6 +9,10 @@ using DataFrames
 using ControlPlots
 using YAML
 
+# Coordinates of the meteorological mast
+longitude = 7.640317864383007
+latitude = 54.40079342584764
+
 # Read CSV files from the data folder
 data_path = joinpath(@__DIR__, "..", "data")
 df_AWG = CSV.read(joinpath(data_path, "Turbine_placement_AWG.csv"), DataFrame)
@@ -85,6 +89,25 @@ end
 # Create the combined dataframe
 df_combined = create_combined_dataframe(df_AWG, df_NSO)
 
+# Convert measurement mast coordinates to UTM and relative position
+transformer = Proj.Transformation("+proj=longlat +datum=WGS84", "+proj=utm +zone=32 +datum=WGS84")
+mast_utm = transformer(longitude, latitude)
+mast_x_utm = mast_utm[1]
+mast_y_utm = mast_utm[2]
+
+# Calculate relative position using the same global reference as the combined dataframe
+global_min_lat = minimum([minimum(df_AWG.latitude), minimum(df_NSO.latitude)])
+global_min_lon = minimum([minimum(df_AWG.longitude), minimum(df_NSO.longitude)])
+global_ref_utm = transformer(global_min_lon, global_min_lat)
+ref_x_global = global_ref_utm[1]
+ref_y_global = global_ref_utm[2]
+
+mast_rel_x = mast_x_utm - ref_x_global
+mast_rel_y = mast_y_utm - ref_y_global
+
+println("\n=== Measurement Mast Position ===")
+println("Mast relative position: X = $(round(mast_rel_x, digits=1)) m, Y = $(round(mast_rel_y, digits=1)) m")
+
 # Print min/max coordinates for each wind farm
 println("\n=== Wind Farm Coordinate Ranges ===")
 println("\nAWG Wind Farm:")
@@ -113,6 +136,7 @@ ax1.set_ylabel("Relative Y (m)")
 ax1.set_title("AWG Wind Farm - Turbine Positions")
 ax1.grid(true, alpha=0.3)
 ax1.axis("equal")
+ax1.legend()
 ax1.set_xlim(minimum(df_AWG.rel_x)-400, maximum(df_AWG.rel_x)+1000)
 println("X limits for AWG plot: ", ax1.get_xlim())
 
@@ -124,10 +148,13 @@ end
 
 # Plot NSO wind farm
 ax2.scatter(df_NSO.rel_x, df_NSO.rel_y, marker="+", s=100, c="blue", linewidths=2, label="NSO Turbines")
+# Add measurement mast
+ax2.scatter(mast_rel_x, mast_rel_y, marker="o", s=120, c="green", edgecolors="black", linewidths=2, label="Mast", zorder=5)
 ax2.set_xlabel("Relative X (m)")
 ax2.set_ylabel("Relative Y (m)")
 ax2.set_title("NSO Wind Farm - Turbine Positions")
 ax2.axis("equal")
+ax2.legend()
 ax2.set_xlim(minimum(df_NSO.rel_x)-400, maximum(df_NSO.rel_x)+1000)
 ax2.grid(true, alpha=0.3)
 # Add turbine names as annotations
@@ -135,6 +162,10 @@ for i in 1:nrow(df_NSO)
     ax2.annotate(df_NSO.name[i], (df_NSO.rel_x[i], df_NSO.rel_y[i]), 
                 xytext=(5, 5), textcoords="offset points", fontsize=8)
 end
+
+# Add mast annotation
+ax2.annotate("Mast", (mast_rel_x, mast_rel_y), 
+            xytext=(5, 5), textcoords="offset points", fontsize=8, color="green", fontweight="bold")
 
 # Plot combined wind farms using the global reference
 awg_mask = df_combined.wind_farm .== "AWG"
@@ -144,6 +175,8 @@ ax3.scatter(df_combined.rel_x[awg_mask], df_combined.rel_y[awg_mask],
            marker="+", s=100, c="red", linewidths=2, label="AWG Turbines")
 ax3.scatter(df_combined.rel_x[nso_mask], df_combined.rel_y[nso_mask], 
            marker="x", s=100, c="blue", linewidths=2, label="NSO Turbines")
+# Add measurement mast
+ax3.scatter(mast_rel_x, mast_rel_y, marker="o", s=120, c="green", edgecolors="black", linewidths=2, label="Mast", zorder=5)
 ax3.set_xlabel("Relative X (m)")
 ax3.set_ylabel("Relative Y (m)")
 ax3.set_title("Combined Wind Farms - All Turbine Positions")
@@ -157,6 +190,10 @@ for i in 1:nrow(df_combined)
     ax3.annotate(df_combined.name[i], (df_combined.rel_x[i], df_combined.rel_y[i]), 
                 xytext=(5, 5), textcoords="offset points", fontsize=7, color=color)
 end
+
+# Add mast annotation
+ax3.annotate("Mast", (mast_rel_x, mast_rel_y), 
+            xytext=(5, 5), textcoords="offset points", fontsize=8, color="green", fontweight="bold")
 
 plt.tight_layout()
 plt.show()
