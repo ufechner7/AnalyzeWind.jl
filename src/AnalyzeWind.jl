@@ -8,6 +8,7 @@ using JLD2
 using Statistics
 
 export process_all_nc_files
+export print_variables, describe_variable
 export plot_all, plot_direction, plot_combined, plot_windrose
 
 """
@@ -93,6 +94,39 @@ function process_all_nc_files(folder_path::String)
     println("Data saved to: $output_file")
     
     return combined_df
+end
+
+# Function to print all variables in a NetCDF dataset
+function print_variables(ds; filter="")
+    for key in keys(ds)
+        if filter == "" || occursin(filter, key)
+            println(key)
+        end
+    end
+end
+
+# Function to print metadata of a specific variable
+function describe_variable(ds, variable_name)
+    if haskey(ds, variable_name)
+        var = ds[variable_name]
+        println("Variable: $variable_name")
+        println("Dimensions: $(dimnames(var))")
+        println("Shape: $(size(var))")
+        println("Data type: $(eltype(var))")
+        
+        # Print attributes
+        attrs = var.attrib
+        if length(attrs) > 0
+            println("Attributes:")
+            for (key, value) in attrs
+                println("  $key: $value")
+            end
+        else
+            println("No attributes")
+        end
+    else
+        println("Variable '$variable_name' not found in dataset")
+    end
 end
 
 function plot_all(path)

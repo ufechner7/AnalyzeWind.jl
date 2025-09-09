@@ -6,39 +6,6 @@ using Dates
 using JLD2
 using AnalyzeWind
 
-# Function to print all variables in a NetCDF dataset
-function print_variables(ds; filter="")
-    for key in keys(ds)
-        if filter == "" || occursin(filter, key)
-            println(key)
-        end
-    end
-end
-
-# Function to print metadata of a specific variable
-function describe_variable(ds, variable_name)
-    if haskey(ds, variable_name)
-        var = ds[variable_name]
-        println("Variable: $variable_name")
-        println("Dimensions: $(dimnames(var))")
-        println("Shape: $(size(var))")
-        println("Data type: $(eltype(var))")
-        
-        # Print attributes
-        attrs = var.attrib
-        if length(attrs) > 0
-            println("Attributes:")
-            for (key, value) in attrs
-                println("  $key: $value")
-            end
-        else
-            println("No attributes")
-        end
-    else
-        println("Variable '$variable_name' not found in dataset")
-    end
-end
-
 # Example: Process a single file
 path = joinpath(@__DIR__, "..", "data", "WindData", "10min_dataset")
 filename="NSO-met-mast-data-10min_2021-08-09-16-40-00_2021-08-10-00-00-00.nc"
@@ -83,7 +50,7 @@ plot(df.rel_time, [df.wind_direction_32m, df.wind_direction_92m], xlabel="Time (
      labels=["Wind Direction 32m", "Wind Direction 92m"], xlims=(minimum(df.rel_time), maximum(df.rel_time)), 
      fig="Wind_Direction_$(time_stamp[1])")
 
-# close(ds)
+
 
 # calculate the position of the meteorological mast
 # using Proj
@@ -91,5 +58,8 @@ plot(df.rel_time, [df.wind_direction_32m, df.wind_direction_92m], xlabel="Time (
 # proj_string = "+proj=utm +zone=32 +datum=WGS84"
 # transformer = Proj.Transformation(proj_string, "+proj=longlat +datum=WGS84")
 # lon, lat = transformer(411734.4371, 6028967.271)
+var = "USA3D_92m_S_Dir_8Hz_Calc_Avg"
+describe_variable(ds, var)
+close(ds)
 
 
