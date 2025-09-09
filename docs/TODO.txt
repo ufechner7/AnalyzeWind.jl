@@ -6,8 +6,6 @@ The turbines used for the Nordsee Ost (NSO) farm are: Senvion 6.2M126.
 - create a file locations.txt - DONE -
   - add the location of the wind mast
 
-- add a bar plot valid sample per month
-
 # DONE
 - fix header of windrose plot; it should look like 01-01-2021 to 31-12-2022 if not filtered by year - DONE -
 - if filtered by year, check that the full year is covered  - DONE -
@@ -18,3 +16,4 @@ The turbines used for the Nordsee Ost (NSO) farm are: Senvion 6.2M126.
 
 - create one or more maps - DONE -
 - write a script to convert the positions to meters - DONE -
+- add a bar plot valid sample per month - DONE -
