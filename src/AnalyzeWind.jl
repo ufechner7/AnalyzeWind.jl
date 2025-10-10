@@ -157,7 +157,7 @@ function plot_combined(path)
 end
 
 """
-    plot_windrose(path::String; height=92, nbins=16, speed_bins=[0, 3, 6, 10, 15, 20], start_year=nothing, start_month=nothing, lat=nothing, long=nothing)
+    plot_windrose(path::String; height=92, nbins=16, speed_bins=[0, 3, 6, 10, 15, 20], start_year=nothing, start_month=nothing, lat=nothing, long=nothing, save_plot=false, output_dir="out")
 
 Create a wind rose plot showing wind direction frequency and speed distribution.
 
@@ -170,8 +170,10 @@ Create a wind rose plot showing wind direction frequency and speed distribution.
 - `start_month`: Starting month (1-12), defaults to 1 (January) if start_year is specified
 - `lat`: Latitude in degrees (will be displayed in lower left corner if provided)
 - `long`: Longitude in degrees (will be displayed in lower left corner if provided)
+- `save_plot`: If true, save the plot as PNG file (default: false)
+- `output_dir`: Directory to save the plot (default: "out")
 """
-function plot_windrose(path::String; height=92, nbins=16, speed_bins=[0, 3, 6, 10, 15, 20], start_year=nothing, start_month=nothing, lat=nothing, long=nothing)
+function plot_windrose(path::String; height=92, nbins=16, speed_bins=[0, 3, 6, 10, 15, 20], start_year=nothing, start_month=nothing, lat=nothing, long=nothing, save_plot=false, output_dir="out")
     # Access matplotlib/PyPlot API
     plt = ControlPlots.plt
     
@@ -359,6 +361,31 @@ function plot_windrose(path::String; height=92, nbins=16, speed_bins=[0, 3, 6, 1
     # Adjust layout to reduce whitespace and prevent legend cutoff
     plt.subplots_adjust(top=1.0, bottom=0.0, left=0.08, right=0.85)
     plt.tight_layout()
+    
+    # Save plot if requested
+    if save_plot
+        mkpath(output_dir)  # Create directory if it doesn't exist
+        
+        # Create filename based on parameters
+        if start_year !== nothing
+            if start_month === nothing
+                start_month = 1
+            end
+            end_year = start_year
+            end_month = start_month + 11
+            if end_month > 12
+                end_year += 1
+                end_month -= 12
+            end
+            filename = "windrose_$(height)m_$(start_year)-$(lpad(start_month, 2, '0'))_to_$(end_year)-$(lpad(end_month, 2, '0')).png"
+        else
+            filename = "windrose_$(height)m_all_data.png"
+        end
+        
+        output_file = joinpath(output_dir, filename)
+        plt.savefig(output_file, dpi=300, bbox_inches="tight")
+        println("Saved windrose plot to: $output_file")
+    end
     
     # Show plot
     plt.show()

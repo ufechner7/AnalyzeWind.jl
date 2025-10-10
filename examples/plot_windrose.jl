@@ -1,6 +1,8 @@
 using AnalyzeWind, ControlPlots, Statistics
 plt = ControlPlots.plt
 
+SAVE_PLOTS = true
+
 path = joinpath("data", "WindData", "10min_dataset")
 
 # Coordinates of the meteorological mast
@@ -9,7 +11,7 @@ latitude = 54.40079342584764
 
 # Create a bar plot of data completeness over time
 # Get all monthly data (not just filtered by year)
-all_monthly_stats = plot_windrose(path; start_month=9, start_year=2021, lat=latitude, long=longitude)
+all_monthly_stats = plot_windrose(path; start_month=9, start_year=2021, lat=latitude, long=longitude, save_plot=SAVE_PLOTS, output_dir="out")
 
 # Create year_month strings for x-axis labels
 year_month_labels = [string(row.year) * "-" * lpad(row.month, 2, '0') for row in eachrow(all_monthly_stats)]
@@ -56,6 +58,15 @@ end
 
 # Adjust layout to prevent label cutoff
 plt.tight_layout()
+
+# Save the plot if SAVE_PLOTS is true
+if SAVE_PLOTS
+    output_dir = joinpath(dirname(@__FILE__), "..", "out")
+    mkpath(output_dir)  # Create directory if it doesn't exist
+    output_file = joinpath(output_dir, "data_completeness.png")
+    plt.savefig(output_file, dpi=300, bbox_inches="tight")
+    println("\nSaved plot to: $output_file")
+end
 
 # Show the plot
 plt.show()
