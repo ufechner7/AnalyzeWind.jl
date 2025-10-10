@@ -2,3 +2,5 @@
 .vscode/settings.json
 out/awg.yaml
 out/nso.yaml
+out/data_completeness.png
+out/windrose_92m_2021-09_to_2022-08.png
